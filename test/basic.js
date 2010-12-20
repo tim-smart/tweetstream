@@ -1,11 +1,18 @@
-var tweetstream = require('tweetstream'),
+var tweetstream = require('../lib/main'),
     fs = require('fs'),
     path = require('path'),
     sys = require('sys');
 
-var credentials = fs.readFileSync(path.join(__dirname, 'creds')).split(',');
+var credentials = JSON.parse(fs.readFileSync(path.join(__dirname, 'creds')));
 
-var stream = tweetstream.createTweetStream({track:["twitter"], 
-                                            username:credentials[0], 
-                                            password:credentials[1].replace('\n','')});
-stream.addListener("tweet", function (tweet) {sys.puts(sys.inspect(tweet))});
+var stream = tweetstream.createTweetStream({
+  track: ['twitter'],
+  username: credentials['username'],
+  password: credentials['password'],
+  key: credentials['key'],
+  secret: credentials['secret']
+});
+
+stream.addListener('data', function(tweet) {
+  comsole.log(tweet);
+});
