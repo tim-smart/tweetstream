@@ -1,7 +1,7 @@
 var http = require('http'),
     streams = require('stream'),
     util = require('util'),
-    base64 = require('./base64'),
+    base64 = require('../base64'),
     qs = require('querystring');
 
 function TweetStream(options) {
