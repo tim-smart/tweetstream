@@ -1,7 +1,7 @@
 var http = require('http'),
     streams = require('stream'),
     util = require('util'),
-    base64 = require('../base64'),
+    base64 = require('./lib/base64'),
     qs = require('querystring');
 
 function TweetStream(options) {
@@ -70,6 +70,10 @@ function TweetStream(options) {
     'Host': 'stream.twitter.com'
   };
 
+  this._headers = headers;
+  this._method  = method;
+  this._path    = path;
+
   if (options.username && options.password) {
     headers['Authorization'] = 'Basic ' +
       base64.encode(options.username + ':' + options.password);
@@ -86,12 +90,17 @@ util.inherits(TweetStream, streams.Stream);
 TweetStream.prototype._doConnect = function() {
   var self = this;
 
-  this._client = http.createClient(80, 'stream.twitter.com', false);
-  this._client.on('error', function(err) {
-    self.emit('error', er);
+  this.req = http.request({
+    host:    'stream.twitter.com',
+    port:    80,
+    method:  this._method,
+    path:    this._path,
+    headers: this._headers
   });
 
-  this.req = this._client.request(method, path, headers);
+  this.req.on('error', function (error) {
+    self.emit('error', error);
+  });
 
   this.req.on('response', function(response) {
     response.setEncoding('utf8');
@@ -116,17 +125,18 @@ TweetStream.prototype.write = function(data) {
       try {
         this.emit('data', JSON.parse(blob));
       } catch (e) {
-        stream.emit('error', e);
+        this.emit('error', e);
       }
     }
 
     idx = this._buffer.indexOf('\r\n');
   }
+
   return true;
 };
 
 TweetStream.prototype.end = function() {
-  this._client.end();
+  this.req.connection.end();
   this.emit('end');
 };
 

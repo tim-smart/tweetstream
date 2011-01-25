@@ -1,4 +1,4 @@
-var tweetstream = require('../lib/main'),
+var tweetstream = require('../'),
     fs = require('fs'),
     path = require('path'),
     sys = require('sys');
@@ -14,5 +14,5 @@ var stream = tweetstream.createTweetStream({
 });
 
 stream.addListener('data', function(tweet) {
-  comsole.log(tweet);
+  console.log(tweet);
 });
