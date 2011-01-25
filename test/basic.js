@@ -16,3 +16,8 @@ var stream = tweetstream.createTweetStream({
 stream.addListener('data', function(tweet) {
   console.log(tweet);
 });
+
+setTimeout(function () {
+  stream.end();
+  console.log('------ Ended -------');
+}, 4000);
