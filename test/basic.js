@@ -20,4 +20,4 @@ stream.addListener('data', function(tweet) {
 setTimeout(function () {
   stream.end();
   console.log('------ Ended -------');
-}, 4000);
+}, 10000);

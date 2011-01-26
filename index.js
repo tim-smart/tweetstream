@@ -60,15 +60,20 @@ function TweetStream(options) {
 
   query = qs.stringify(query);
 
-  if (query) {
-    path += '?';
-    path += query;
-  }
-
   headers = {
-    'Content-Type': 'application/json',
     'Host': 'stream.twitter.com'
   };
+
+  if (query) {
+    if ('POST' === method) {
+      this._body = query;
+      headers['Content-Length'] = Buffer.byteLength(this._body);
+      headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    } else {
+      path += '?';
+      path += query;
+    }
+  }
 
   this._headers = headers;
   this._method  = method;
@@ -108,6 +113,10 @@ TweetStream.prototype._doConnect = function() {
     self.readable = true;
   });
 
+  if (this._body) {
+    this.req.write(this._body);
+  }
+
   this.req.end();
 };
 
@@ -136,7 +145,12 @@ TweetStream.prototype.write = function(data) {
 };
 
 TweetStream.prototype.end = function() {
-  this.req.connection.destroy();
+  if (this.req.connection) {
+    this.req.connection.destroy();
+  } else {
+    this.req.end();
+  }
+
   this.emit('end');
 };
 
