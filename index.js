@@ -147,8 +147,6 @@ TweetStream.prototype.write = function(data) {
 TweetStream.prototype.end = function() {
   if (this.req.connection) {
     this.req.connection.destroy();
-  } else {
-    this.req.end();
   }
 
   this.emit('end');
